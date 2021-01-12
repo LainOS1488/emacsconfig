@@ -1,0 +1,150 @@
+* Package Manager
+MEPA!!!!!
+#+BEGIN_SRC emacs-lisp
+(require 'package)
+(setq package-enable-at-startup nil)
+(add-to-list 'package-archives
+	     '("Melpa" . "https://melpa.org/packages/"))
+(package-initialize)
+#+END_SRC
+* Splash Screen
+What I see when I open Emacs.
+** Geting Rid of The Old One
+This stops the old splash screen.
+#+BEGIN_SRC emacs-lisp
+(setq inhibit-splash-screen t)
+#+END_SRC
+** New One
+This is the new spash screen plus a cool audio clip on start up. 
+#+BEGIN_SRC emacs-lisp
+(find-file "~/.lain.org")
+#+END_SRC 
+* Time & Battery
+** Time
+Here you have the date and time. This is so I know the time and date, it's all set to how I like it.
+#+BEGIN_SRC emacs-lisp
+(setq display-time-24hr-format t)
+(setq display-time-format "%H:%M - %B %d %Y")
+(display-time-mode 1)
+#+END_SRC
+** Battery
+This way I know my battery life.
+#+BEGIN_SRC emacs-lisp
+(display-battery-mode 1)
+#+END_SRC
+* Term
+Key binding for Eshell. Eshell, the best shell in Emacs.
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "<s-return>") 'eshell)
+#+END_SRC
+* Tool Bar
+Removing the too bar. I do this to save screen space
+#+BEGIN_SRC emacs-lisp
+(tool-bar-mode -1)
+(menu-bar-mode -1)
+#+END_SRC
+* Theme
+The Cyberpunk theme.
+#+BEGIN_SRC emacs-lisp
+(add-hook 'after-init-hook 
+(lambda () (load-theme 'cyberpunk t)))
+#+END_SRC 
+* Org-Mode
+Settings for org-mode
+** Org-Export
+The ways you can export org-mode
+#+BEGIN_SRC emacs-lisp
+ '(org-startup-with-beamer-mode t)
+ '(quote
+   (org-export-backends
+    (quote (Ascii beamer html icalendar latex md odt groff rss))))
+#+END_SRC
+** Line Wraping
+This is so the lines wrap in Org-mode. IDK why the hell it's not by default.
+#+BEGIN_SRC emacs-lisp 
+ (setq org-startup-truncated nil)
+#+END_SRC 
+** Bullets
+This is just org bullets set with the package Org-bullets.
+#+BEGIN_SRC emacs-lisp 
+(setq org-bullets-bullet-list '("卍" "⛧" "ᛟ" "ᛇ" "⨁"))
+(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+#+END_SRC  
+ 
+* SDCV
+A dictionary for you.
+** Keybinding
+This is a keybinding to run SDCV. 
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-c d") 'sdcv-search-input+)
+#+END_SRC
+* W3M
+W3M is a web browser I use.
+** Key Binding
+This is a keybinding for w3m
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-x w") 'w3m)
+#+END_SRC
+** Browser Function 
+Setting W3M at the browser for all things emacs
+#+BEGIN_SRC emacs-lisp
+(setq browse-url-browser-function 'w3m)
+#+END_SRC
+** DuckDuckGo
+I use engine-mode and set a key binding for DuckDuckGo. Feel free to add more.
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-x d") 'engine/search-duckduckgo)
+
+(defengine duckduckgo
+  "https://duckduckgo.com/?q=%s")
+#+END_SRC
+* PDF-tools
+Setting up PDF-tools
+#+BEGIN_SRC emacs-lisp
+(pdf-tools-install)
+#+END_SRC
+* Music
+I use Bongo with Mplayer to play my music
+** Keybinding
+This is the keybinding to run bongo
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-x m") 'bongo)
+#+END_SRC
+
+* Helm
+Right here are some keybindings for Helm
+** Find Files
+I also set dired to a new key
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-x C-f") 'helm-find-files)
+
+(global-set-key (kbd "C-x f") 'find-file)
+#+END_SRC
+** Buffers
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-x C-b") 'helm-buffer-list)
+#+END_SRC
+* Dmenu
+Marco Avelar wrote this, not me. You can find the original code [[https://gist.github.com/maavelar5/81b22d52a47e125e62a04c39ef7e08cd][here]]. However, I did modify it and will contine to do so. I think he had a neat idea and I will improve on it. I don't really use it, but it is neat.
+#+BEGIN_SRC emacs-lisp  
+(setq dmenu-cfg " | dmenu -i -l 9")
+
+;; This is like a dmenu file broweser (one that can only open files). To get into my improvement on Marco's code. When an candidate is selected it will then check if that is a file or a folder. If it is a folder it will cd into that directory and ls. If it's a file it will just open it. The way Marco did it only would ls your current directory and run "find-file" on the selected candidate.
+
+(defun dmenu-find-file (&optional dir)
+  (interactive)
+
+  (setq output (shell-command-to-string (concat "ls -a" dmenu-cfg)))
+
+  (when (> (length output) 1) 
+    (setq check (shell-command-to-string (concat "bash ~/.check.sh " output)))
+      (if (string-equal "file" (substring check 0 -1))
+      (find-file (substring output 0 -1))
+     (progn
+      (cd (substring output 0 -1)) 
+      (dmenu-find-file)))))
+  
+;; Now I set a keybinding
+;;(global-set-key (kbd "C-x f") 'dmenu-find-file)
+
+#+END_SRC
